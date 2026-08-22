@@ -14,6 +14,8 @@ __pycache__/
 
 # Jupyterbook output
 _build/
+# Local-only Jupyter Book config; CI regenerates this via action--pre-process
+_config.yml
 
 # Distribution / packaging
 .Python
