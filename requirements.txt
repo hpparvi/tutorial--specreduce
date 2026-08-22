@@ -1,0 +1,8 @@
+specreduce>=1.9
+specutils>=2.4
+ccdproc>=2.4
+astropy>=8.0
+
+numpy>=2.0
+scipy>=1.11
+matplotlib>=3.8
