@@ -46,9 +46,10 @@ unchanged, and only the numbers differ.
 
 ### Authors
 
-[Hannu Parviainen](https://orcid.org/0000-0001-5519-1391) (Universidad de La Laguna & Instituto de Astrofísica de
-Canarias) wrote the book, chose the dataset, and reduced it using his own pipeline once before, less well, in 2014. 
-He has been annoyed by the bad reduction ever since and fixes it here.
+[Hannu Parviainen](https://orcid.org/0000-0001-5519-1391) (Universidad de La Laguna and
+Instituto de Astrofísica de Canarias) wrote the book and chose the dataset. He first reduced
+these frames in 2014 with a pipeline of his own, and not well. The result has annoyed him ever
+since, and this book is where he finally does it properly.
 
 Contributors who write a chapter, or review one in detail, are added to the author list.
 
