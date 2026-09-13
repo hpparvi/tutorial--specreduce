@@ -1,0 +1,41 @@
+# Table of contents for the specreduce tutorial book.
+# Jupyter Book v1 format. Each `file:` points to a notebook (without the
+# .ipynb extension) that the CI executes and converts to HTML.
+# See: https://jupyterbook.org/customize/toc.html
+#
+# The order is the order of an actual reduction: the frame is located and
+# rectified before anything is measured from it, so each chapter consumes the
+# previous chapter's output.
+
+format: jb-book
+root: index
+
+parts:
+  - caption: Foundations
+    chapters:
+      - file: notebooks/01-introduction
+      - file: notebooks/02-spectral-images
+      - file: notebooks/03-spectrum-objects
+
+  - caption: From Frame to Spectrum
+    chapters:
+      - file: notebooks/04-tracing
+      - file: notebooks/05-arc-lamps
+      - file: notebooks/06-tilt-correction
+      - file: notebooks/07-background
+      - file: notebooks/08-extraction
+
+  - caption: Wavelength Calibration
+    chapters:
+      - file: notebooks/09-line-identification
+      - file: notebooks/10-wavelength-solution-interactive
+      - file: notebooks/11-wavelength-solution-automated
+      - file: notebooks/12-wavelength-solution-2d
+
+  - caption: Flux Calibration
+    chapters:
+      - file: notebooks/13-flux-calibration
+
+  - caption: End-to-End
+    chapters:
+      - file: notebooks/14-full-pipeline
