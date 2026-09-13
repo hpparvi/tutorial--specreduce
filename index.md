@@ -18,8 +18,8 @@ chapter picks up where the previous one finished and ends at a wavelength-calibr
 spectrum.
 
 The book grew out of a set of `specreduce` tutorial notebooks the author wrote for various
-instruments and datasets. Those notebooks are now deprecated, but their instrument-specific 
-reductions are planned to return as case studies in later chapters of this book.
+instruments and datasets. Those notebooks are now deprecated, but a set of instrument-specific 
+case studies will be included later in the future.
 
 ```{tableofcontents}
 ```
