@@ -17,6 +17,10 @@ source is located and the frame is rectified before anything is measured from it
 chapter picks up where the previous one finished and ends at a wavelength-calibrated 1D
 spectrum.
 
+The book grew out of a set of `specreduce` tutorial notebooks the author wrote for various
+instruments and datasets. Those notebooks are now deprecated, but their instrument-specific 
+reductions are planned to return as case studies in later chapters of this book.
+
 ```{tableofcontents}
 ```
 
