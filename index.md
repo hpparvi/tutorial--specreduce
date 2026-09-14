@@ -9,17 +9,17 @@ one-dimensional spectrum out of it, and who want to understand what happened in 
 `specreduce` is designed for **both interactive use and automated pipelines**: the same
 building blocks work step by step in a notebook (inspecting a trace, tweaking a background
 window, checking wavelength residuals by eye) and stitched together into a scripted,
-non-interactive reduction. This book teaches both styles, showing each step interactively
-before composing the full end-to-end pipeline.
+non-interactive reduction. This book teaches both styles: we take each step interactively
+first, looking at what it does and choosing its settings by inspection, and then compose
+everything into the full end-to-end pipeline.
 
-The chapters are ordered as a reduction pipeline, in the order a real reduction runs: the
-source is located and the frame is rectified before anything is measured from it, so each
-chapter picks up where the previous one finished and ends at a wavelength-calibrated 1D
-spectrum.
+The chapters are ordered as a reduction pipeline, in the order a real reduction runs: we locate
+the source and rectify the frame before measuring anything from it, so each chapter picks up
+where the previous one finished, and the book ends at a wavelength-calibrated 1D spectrum.
 
-The book grew out of a set of `specreduce` tutorial notebooks the author wrote for various
-instruments and datasets. Those notebooks are now deprecated, but a set of instrument-specific 
-case studies will be included later in the future.
+The book grew out of a set of `specreduce` tutorial notebooks its author wrote for various
+instruments and datasets. Those notebooks are now deprecated; a set of instrument-specific case
+studies will follow later.
 
 ```{tableofcontents}
 ```
@@ -36,14 +36,14 @@ in v1.11.
 
 **Data.** Every chapter works on the same real dataset: a long-slit observation of the TrES-3
 system taken with the OSIRIS spectrograph at the Gran Telescopio Canarias, together with its
-HgAr, Ne, and Xe arc lamp frames. Chapter 1 introduces it, and explains why it was chosen.
+HgAr, Ne, and Xe arc lamp frames. Chapter 1 introduces it and explains why we chose it.
 :::
 
 :::{note}
-**Tilt correction is instrument-specific.** These OSIRIS frames have a strong tilt, so the
-book rectifies them early and every later chapter works on the corrected frame. If your
-spectrograph does not need it, skip that chapter: every call in the chapters that follow is
-unchanged, and only the numbers differ.
+**Tilt correction is instrument-specific.** These OSIRIS frames have a strong tilt, so we
+rectify them early and every later chapter works on the corrected frame. If your spectrograph
+does not need it, skip that chapter: every call in the chapters that follow is unchanged, and
+only the numbers differ.
 :::
 
 ## Credits
@@ -81,10 +81,9 @@ covers the detector-level steps this book leaves out.
 ## Software setup
 
 The notebooks need Python 3.11 or later and `specreduce` 1.10 or later, together with the
-packages it builds on. Everything is on
-[conda-forge](https://conda-forge.org), so a fresh environment is one command. Install Python
-through [Miniforge](https://github.com/conda-forge/miniforge) if you do not have conda already,
-then:
+packages it builds on. Everything is on [conda-forge](https://conda-forge.org), so a fresh
+environment is one command. Install Python through
+[Miniforge](https://github.com/conda-forge/miniforge) if you do not have conda already, then:
 
 ```sh
 conda create -n specreduce -c conda-forge specreduce specutils ccdproc astropy matplotlib jupyterlab
@@ -120,7 +119,7 @@ as bzip2-compressed FITS and live in the `data` directory at the top of the repo
 `common.read_data` locates that directory itself, so nothing has to be configured. Three
 derived products (the tilt solution and the two wavelength solutions, all ASDF) are written into
 the same directory by the chapters that fit them, and read back by the chapters that follow;
-each of those chapters refits if the file is missing, so any chapter can be run on its own.
+each of those chapters refits if the file is missing, so you can run any chapter on its own.
 
 ## Contributing
 
