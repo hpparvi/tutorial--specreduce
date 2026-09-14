@@ -2,8 +2,11 @@
 
 Every chapter loads the OSIRIS frames through this module rather than reading FITS
 files directly. Keeping it in one place is what makes "one dataset everywhere"
-enforceable, and it keeps bias subtraction, trimming and noise bookkeeping --
-detector-level details the book does not teach -- out of the chapters' narrative.
+enforceable, and it keeps trimming -- a detector-level detail the book does not
+teach -- out of the chapters' narrative. The frames themselves arrive already
+reduced: ``data/full_data/downsample_and_reduce_data.py`` applies the overscan,
+bias, gain and flat corrections and attaches the per-pixel uncertainty, so a
+chapter sees calibrated charge in electrons from the first cell.
 
 The dataset is described in ``notebooks/01-introduction.ipynb``.
 """
@@ -11,10 +14,7 @@ The dataset is described in ``notebooks/01-introduction.ipynb``.
 from pathlib import Path
 
 import numpy as np
-from astropy import units as u
-from astropy.io import fits as pf
-from astropy.nddata import CCDData, VarianceUncertainty
-from astropy.stats import mad_std
+from astropy.nddata import CCDData
 
 __all__ = [
     "ANCHOR_PIXELS",
@@ -44,11 +44,11 @@ def _find_data_dir():
     for start in (Path(__file__).resolve().parent, Path.cwd().resolve()):
         for candidate in (start, *start.parents):
             data_dir = candidate / "data"
-            if (data_dir / "osiris_bias.fits.bz2").is_file():
+            if (data_dir / "osiris_tres_3b.fits").is_file():
                 return data_dir
     raise FileNotFoundError(
         "Could not locate the tutorial's data/ directory. It should sit next to "
-        "notebooks/ and contain osiris_bias.fits.bz2."
+        "notebooks/ and contain osiris_tres_3b.fits."
     )
 
 
@@ -69,93 +69,47 @@ def parse_section(value):
     return np.s_[y1 - 1 : y2, x1 - 1 : x2]
 
 
-def _read_noise(debiased, header):
-    """Read noise of a bias-subtracted frame, in electrons per pixel.
+def read_file(fname, trim=True):
+    """Read one reduced frame as a `~astropy.nddata.CCDData`, trimmed to ``TRIMSEC``.
 
-    ``BIASSEC`` points at the prescan: real pixels, clocked out and digitized the
-    same way as the rest of the frame, but never exposed to light. After bias
-    subtraction the only thing left there is noise, so its robust scatter measures
-    the read noise directly -- and measures the *right* quantity, because the
-    subtracted bias is a single exposure rather than a master, so its own read noise
-    is part of the budget. Estimating it here rather than hard-coding a catalog
-    value also handles the extra 2x2 block-summing applied when the tutorial frames
-    were made: each pixel here is the sum of four independent reads, so its read
-    noise is twice the detector's per-read figure.
-
-    A robust estimator is essential -- the prescan carries a bias-level gradient
-    along the slow axis and the occasional hot pixel, and a plain standard deviation
-    picks both up.
-    """
-    if "BIASSEC" not in header:
-        raise KeyError(
-            "Frame has no BIASSEC keyword, so the read noise cannot be measured "
-            "from its prescan."
-        )
-    return mad_std(debiased[parse_section(header["BIASSEC"])]) * header["GAIN"]
-
-
-def read_file(fname, bias, trim=True):
-    """Read one frame, calibrate it, and wrap it as a `~astropy.nddata.CCDData`.
-
-    The frame is bias-subtracted, converted from ADU to electrons using the ``GAIN``
-    keyword, given a per-pixel variance combining photon shot noise with read noise,
-    and -- unless ``trim`` is False -- cut down to the region the observatory
-    recommends in ``TRIMSEC``. Working in electrons is what makes the shot-noise term
-    meaningful: Poisson statistics apply to detected charge, not to the arbitrary
-    digitization units the detector reports.
+    The files are written by ``data/full_data/downsample_and_reduce_data.py`` and are
+    already bias-subtracted, flat-fielded and converted to electrons, with a
+    `~astropy.nddata.StdDevUncertainty` that combines photon shot noise with the read
+    noise. ``CCDData.read`` restores all of that; the only thing left to do here is
+    the trim.
 
     Parameters
     ----------
     fname : str or `~pathlib.Path`
         Path to the FITS file.
-    bias : ndarray
-        Bias frame in raw ADU, on the same pixel grid.
     trim : bool, optional
-        Trim the frame to ``TRIMSEC``. The read noise is measured from the prescan
-        *before* trimming, since trimming removes it. Chapters 1 and 2 pass False
-        to show the detector frame as recorded; every later chapter works on the
-        trimmed frame, and Chapter 2 explains why.
+        Trim the frame to ``TRIMSEC``, the region the observatory recommends. Chapters
+        1 and 2 pass False to show the detector frame as recorded; every later chapter
+        works on the trimmed frame, and Chapter 2 explains why.
 
     Returns
     -------
     `~astropy.nddata.CCDData`
-        Bias-subtracted signal in electrons, carrying a
-        `~astropy.nddata.VarianceUncertainty`. ``specreduce``'s line-finding and
-        optimal-extraction routines read the uncertainty to set detection thresholds
-        and extraction weights, so it is always attached. The measured read noise is
-        also recorded in ``meta['RDNOISE']``, and survives tilt-correction resampling,
-        which carries metadata through. A trimmed frame records the section it was
-        cut to in ``meta['TRIMMED']``.
+        Reduced signal in electrons, carrying a `~astropy.nddata.StdDevUncertainty`.
+        ``specreduce``'s line-finding and optimal-extraction routines read the
+        uncertainty to set detection thresholds and extraction weights, so it is always
+        attached. ``meta`` is the FITS header: the observation keywords, the sections
+        remapped to this pixel grid, the reduction record, and ``RDNOISE``, the read
+        noise per pixel in electrons. A trimmed frame records the section it was cut to
+        in ``meta['TRIMMED']``.
     """
-    data, header = pf.getdata(fname, header=True)
-    debiased = data.astype("d") - bias
+    frame = CCDData.read(fname)
 
-    signal = debiased * header["GAIN"]
-    read_noise = _read_noise(debiased, header)
-
-    # Shot noise applies to detected charge only, so the Poisson term is the signal
-    # itself -- not the raw counts, which are dominated by the bias pedestal. It is
-    # clipped at zero because sky-limited pixels scatter negative, and a negative
-    # variance would poison every downstream weight. Dark current is left out: these
-    # are 2-12 s exposures on a cooled CCD.
-    variance = np.maximum(signal, 0.0) + read_noise**2
-
-    meta = {"RDNOISE": read_noise}
     if trim:
         # TRIMSEC is the observatory's recommended usable region. On these frames it
         # drops the prescan, the unilluminated strip below the slit, and two dozen
         # columns at the red end beyond the grism's coverage (Chapter 2 measures all
         # three), so downstream chapters never have to steer around a frame edge.
-        section = parse_section(header["TRIMSEC"])
-        signal, variance = signal[section], variance[section]
-        meta["TRIMMED"] = header["TRIMSEC"]
+        section = frame.meta["TRIMSEC"]
+        frame = frame[parse_section(section)]
+        frame.meta["TRIMMED"] = section
 
-    return CCDData(
-        signal,
-        unit=u.electron,
-        uncertainty=VarianceUncertainty(variance),
-        meta=meta,
-    )
+    return frame
 
 
 def read_data(trim=True):
@@ -175,12 +129,8 @@ def read_data(trim=True):
     obj : `~astropy.nddata.CCDData`
         The TrES-3 science frame.
     """
-    bias = pf.getdata(DATA_DIR / "osiris_bias.fits.bz2").astype("d")
-    arcs = [
-        read_file(DATA_DIR / f"osiris_arc_{lamp}.fits.bz2", bias, trim)
-        for lamp in ARC_LAMPS
-    ]
-    obj = read_file(DATA_DIR / "osiris_tres_3b.fits.bz2", bias, trim)
+    arcs = [read_file(DATA_DIR / f"osiris_arc_{lamp}.fits", trim) for lamp in ARC_LAMPS]
+    obj = read_file(DATA_DIR / "osiris_tres_3b.fits", trim)
     return arcs, ARC_LAMPS, obj
 
 
