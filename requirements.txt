@@ -1,4 +1,4 @@
-specreduce>=1.9
+specreduce>=1.10
 specutils>=2.4
 ccdproc>=2.4
 astropy>=8.0
