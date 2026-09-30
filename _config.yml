@@ -1,0 +1,11 @@
+# Minimal Jupyter Book v1 config for LOCAL previews.
+# NOTE: CI does not use this file — the astropy-learn `action--pre-process` step
+# generates its own _config.yml from metadata.yml. Keep `title` in sync with
+# metadata.yml. "cache" executes notebooks once and reuses the results; switch to
+# "off" for a fast structural check of the stub chapters.
+title: "Reducing Spectroscopic Data with specreduce"
+author: "The specreduce tutorial authors"
+only_build_toc_files: true
+
+execute:
+  execute_notebooks: "cache"
