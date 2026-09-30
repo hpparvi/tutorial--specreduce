@@ -30,9 +30,9 @@ correction, background subtraction, extraction, and wavelength calibration. Dete
 reduction (dark and flat correction, cosmic-ray rejection) is the domain of
 [`ccdproc`](https://ccdproc.readthedocs.io) and
 [`astroscrappy`](https://astroscrappy.readthedocs.io) and is covered by the
-[CCD Data Reduction Guide](https://www.astropy.org/ccd-reduction-and-photometry-guide/).
-Flux calibration has a chapter, but it is a placeholder: `specreduce` gains the tools for it
-in v1.11.
+[CCD Data Reduction Guide](https://www.astropy.org/ccd-reduction-and-photometry-guide/); the
+book's frames arrive already bias-subtracted and flat-fielded. Flux calibration has a chapter, but
+it is a placeholder: `specreduce` gains the tools for it in v1.11.
 
 **Data.** Every chapter works on the same real dataset: a long-slit observation of the TrES-3
 system taken with the OSIRIS spectrograph at the Gran Telescopio Canarias, together with its
@@ -57,7 +57,7 @@ since, and this book is where he finally does it properly.
 
 Contributors who write a chapter, or review one in detail, are added to the author list.
 
-### Funding
+% ### Funding
 
 % TODO
 
@@ -107,19 +107,21 @@ cd tutorial--specreduce/notebooks
 jupyter lab
 ```
 
-The notebooks import a helper module, `src/common.py`, which loads the frames, subtracts the
-bias, converts counts to electrons, and attaches a variance. Every chapter reaches it with
-`sys.path.append("../src")`, so if you run a chapter's code outside the notebooks, copy that
-file alongside your script.
+The notebooks import a helper module, `src/common.py`, which loads the frames and trims them to
+the observatory's recommended region. Every chapter reaches it with `sys.path.append("../src")`,
+so if you run a chapter's code outside the notebooks, copy that file alongside your script.
 
 ### Data files
 
-The book's five frames, a science exposure, three arc lamps, and a bias, total about 2.5 MB
-as bzip2-compressed FITS and live in the `data` directory at the top of the repository.
-`common.read_data` locates that directory itself, so nothing has to be configured. Three
-derived products (the tilt solution and the two wavelength solutions, all ASDF) are written into
-the same directory by the chapters that fit them, and read back by the chapters that follow;
-each of those chapters refits if the file is missing, so you can run any chapter on its own.
+The book's four frames, a science exposure and three arc lamps, live in the `data` directory at
+the top of the repository as FITS files of about 4 MB each. They are already reduced: bias- and
+flat-corrected with master calibrations built from the raw OSIRIS frames, converted to electrons,
+and carrying a per-pixel uncertainty. The dataset contains no bias or flat frames, because the
+master calibrations were applied before the files were written. `common.read_data` locates the
+directory itself, so nothing has to be configured. Three derived products (the tilt solution and
+the two wavelength solutions, all ASDF) are written into the same directory by the chapters that
+fit them and read back by the chapters that follow; each of those chapters refits if the file is
+missing, so you can run any chapter on its own.
 
 ## Contributing
 
