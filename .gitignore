@@ -185,3 +185,10 @@ cython_debug/
 data/tilt_solution.asdf
 data/wavelength_solution.asdf
 data/wavelength_solution_2d.asdf
+
+.idea/
+old_tutorial_notebooks/
+data/full_data/
+data/full_data_possibly_maybe/
+data/*.bz2
+data/pipeline
